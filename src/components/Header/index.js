@@ -18,6 +18,9 @@ function Header(props) {
         <div className="callToActions">
           {currentUser && (
             <ul>
+              <li>
+                <Link to="/dashboard">My Account</Link>
+              </li>
               <li style={{cursor:'pointer',textTransform:'uppercase'}}>
                 <span onClick={()=> auth.signOut()}>LogOut</span>
               </li>
