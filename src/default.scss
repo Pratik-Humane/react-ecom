@@ -50,3 +50,15 @@ a:hover {
   padding: 0 10px;
   margin: 0 auto;
 }
+
+.errorUl {
+  margin: 0;
+  padding: 0;
+
+  li {
+    list-style-type: none;
+    display: inline-block;
+    font-size: 1.4rem;
+    color: red;
+  }
+}

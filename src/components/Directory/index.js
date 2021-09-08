@@ -13,14 +13,14 @@ export default function Directory() {
           style={{
               backgroundImage: `url(${shopWomens})`
           }}>
-          <a>Shop Womens</a>
+          <a href='#'>Shop Womens</a>
         </div>
         <div
           className="item"
           style={{
               backgroundImage: `url(${ShopMen})`
           }}>
-          <a>Shop Mens</a>
+          <a href='#'>Shop Mens</a>
         </div>
       </div>
       

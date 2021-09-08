@@ -5,7 +5,7 @@ import Header from "../components/Header";
 export default function MainLayout(props) {
   return (
     <div>
-      <Header />
+      <Header {...props}/>
       <div className="main">
         {props.children}
       </div>
