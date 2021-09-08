@@ -4,6 +4,7 @@ import Button from '../forms/Button';
 import { auth, handleUserProfile } from '../../firebase/util';
 
 import './style.scss';
+import AuthWrapper from '../AuthWrapper';
 /**
 * @author
 * @class Signup
@@ -73,9 +74,7 @@ class Signup extends Component {
    const { displayName, email, password, confirmPassword, errors } = this.state;
 
     return(
-        <div className="signup">
-          <div className="wrap">
-            <h2>Signup</h2>
+        <AuthWrapper headline="Signup">
             {errors.length>0 && (
               <ul className="errorUl">
                 {errors.map((error,index)=>{
@@ -118,8 +117,7 @@ class Signup extends Component {
                 <Button type="submit">Register</Button>
               </form>
             </div>
-          </div>
-        </div>
+          </AuthWrapper>
       )
     }
  }

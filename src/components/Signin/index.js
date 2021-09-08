@@ -2,7 +2,9 @@ import React, { Component } from 'react'
 import { siginWithGoogle, auth } from '../../firebase/util';
 import Button from '../forms/Button';
 import FormInput from '../forms/FormInput';
+import AuthWrapper from '../../components/AuthWrapper';
 import './style.scss';
+import { Link } from 'react-router-dom';
 /**
 * @author
 * @function Signin
@@ -62,9 +64,7 @@ class Signin extends Component {
   render() {
     const { email, password, errors } = this.state;
     return(
-      <div className="signin">
-        <div className="wrap">
-          <h2>Login</h2>
+        <AuthWrapper headline="Signin">
           {errors.length>0 && (
             <ul className="errorUl">
               {errors.map((error,index)=>{
@@ -96,10 +96,12 @@ class Signin extends Component {
                   <Button onClick={siginWithGoogle}>Sign in with Google</Button>
                 </div>
               </div>
+              <div className="link">
+                <Link to="/recovery">Reset Password</Link>
+              </div>
             </form>
           </div>
-        </div>
-      </div>
+        </AuthWrapper>
     )
   }
   

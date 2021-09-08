@@ -6,6 +6,7 @@ import HomePageLayout from './Layout/HomePageLayout';
 import MainLayout from './Layout/MainLayout';
 import HomePage from './pages/HomePage';
 import Login from './pages/Login';
+import Recovery from './pages/Recovery';
 import Registration from './pages/Registration';
 
 
@@ -66,6 +67,12 @@ class App extends Component {
             render={() => currentUser ? <Redirect to="/"/> : (
               <MainLayout currentUser={currentUser}>
                 <Login />
+              </MainLayout>
+            )}/>
+          <Route path="/recovery"
+            render={() => currentUser ? <Redirect to="/"/> : (
+              <MainLayout currentUser={currentUser}>
+                <Recovery />
               </MainLayout>
             )}/>
         </Switch>
