@@ -1,12 +1,16 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
 import './style.scss';
 import Logo from '../../assets/logo.png'
 import { auth } from '../../firebase/util';
+import { useSelector } from 'react-redux';
 
 function Header(props) {
-  const { currentUser } = props;
+  const { currentUser } = useSelector(state => state.user);
+  const handleSignOut = () => {
+    localStorage.clear();
+    auth.signOut();
+  };
   return (
     <header className="header">
       <div className="wrap">
@@ -22,7 +26,7 @@ function Header(props) {
                 <Link to="/dashboard">My Account</Link>
               </li>
               <li style={{cursor:'pointer',textTransform:'uppercase'}}>
-                <span onClick={()=> auth.signOut()}>LogOut</span>
+                <span onClick={handleSignOut}>LogOut</span>
               </li>
             </ul>
           )}
@@ -47,8 +51,4 @@ Header.defaultProps = {
   currentUser: null
 };
 
-const mapStateToProps = ({ user }) => ({
-  currentUser: user.currentUser
-});
-
-export default connect(mapStateToProps, null)(Header);
+export default Header;

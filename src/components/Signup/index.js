@@ -1,106 +1,79 @@
-import React, { useState } from 'react';
-import FormInput from '../forms/FormInput'; 
-import Button from '../forms/Button'; 
-import { auth, handleUserProfile } from '../../firebase/util';
-import { withRouter } from "react-router-dom";
-import './style.scss';
-import AuthWrapper from '../AuthWrapper';
+import React, { useEffect, useState } from "react";
+import FormInput from "../forms/FormInput";
+import Button from "../forms/Button";
+import { Redirect, withRouter } from "react-router-dom";
+import "./style.scss";
+import AuthWrapper from "../AuthWrapper";
+import { useSelector } from "react-redux";
+import { resetAllAuthForms, signUpUser } from "../../redux/User/user.actions";
+import { useDispatch } from "react-redux";
+import { Formik, Form } from "formik";
+import ErrorMessage from "../ErrorMessage";
+import {
+  signUpInitialValues,
+  validateSignUpForm,
+} from "../../validations/authFormValidation";
 /**
-* @author
-* @class Signup
-**/
+ * @author
+ * @class Signup
+ **/
 
-const Signup = props => {
-
-  const [displayName, setDisplayName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+const Signup = (props) => {
+  const dispatch = useDispatch();
+  const { currentUser, signUpSuccess, signUpError } = useSelector(
+    (state) => state.user
+  );
   const [errors, setErrors] = useState([]);
 
-  const resetForm = () => {
-    setDisplayName('');
-    setEmail('');
-    setPassword('');
-    setConfirmPassword('');
-    setErrors([]);
+  const INITIAL_FORM_STATE = signUpInitialValues;
+  const FORM_VALIDATION = validateSignUpForm();
+
+  useEffect(() => {
+    if (signUpSuccess) {
+      dispatch(resetAllAuthForms());
+      props.history.push("/");
+    }
+  }, [signUpSuccess]);
+
+  useEffect(() => {
+    if (Array.isArray(signUpError) && signUpError.length > 0) {
+      setErrors(signUpError);
+    }
+  }, [signUpError]);
+
+  if (localStorage.getItem("key") && !currentUser) {
+    return <Redirect to="/" />;
   }
-
-  const handleFormSubmit = async (e) => {
-    e.preventDefault();
-
-    if (displayName === '') {
-      setErrors(['Full Name is required']);
-      return;
-    }
-    if (email === '') {
-      setErrors(['Email is required']);
-      return;
-    }
-    if (password !== confirmPassword) {
-      setErrors(['Password Don\'t match']);
-      return;
-    }
-    try {
-
-      const { user } = await auth.createUserWithEmailAndPassword(email, password);
-      await handleUserProfile(user, { displayName });
-      resetForm();
-      props.history.push('/');
-
-    } catch (error) {
-      setErrors(['Something went wrong. Please try again.']);
-    }
-  }
-
-    return(
-        <AuthWrapper headline="SignUp">
-            {errors.length>0 && (
-              <ul className="errorUl">
-                {errors.map((error,index)=>{
-                  return (
-                    <li key={index}>{error}</li>
-                  )
-                })}
-              </ul>
-            )}
-            <div className="formWrapper">
-              <form onSubmit={handleFormSubmit}>
-                <FormInput
-                  name="displayName"
-                  type="text"
-                  value={displayName}
-                  placeholder="Full Name"
-                  onChange={e=>setDisplayName(e.target.value)}
-                />
-                <FormInput
-                  name="email"
-                  type="email"
-                  value={email}
-                  placeholder="Email"
-                  onChange={e=>setEmail(e.target.value)}
-                />
-                <FormInput
-                  name="password"
-                  type="password"
-                  value={password}
-                  placeholder="Password"
-                  onChange={e=>setPassword(e.target.value)}
-                />
-                <FormInput
-                  name="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  placeholder="Confirm Password"
-                  onChange={e=>setConfirmPassword(e.target.value)}
-                />
-                <Button type="submit">Register</Button>
-              </form>
-            </div>
-          </AuthWrapper>
-      )
-    }
-
-
+  return (
+    <AuthWrapper headline="SignUp">
+      <ErrorMessage errors={errors} />
+      <div className="formWrapper">
+        <Formik
+          initialValues={{ ...INITIAL_FORM_STATE }}
+          validationSchema={FORM_VALIDATION}
+          onSubmit={(values, { resetForm }) => {
+            const { displayName, email, password, confirmPassword } = values;
+            dispatch(
+              signUpUser({ displayName, email, password, confirmPassword })
+            );
+            resetForm();
+          }}
+        >
+          <Form>
+            <FormInput name="displayName" type="text" placeholder="Full Name" />
+            <FormInput name="email" type="email" placeholder="Email" />
+            <FormInput name="password" type="password" placeholder="Password" />
+            <FormInput
+              name="confirmPassword"
+              type="password"
+              placeholder="Confirm Password"
+            />
+            <Button type="submit">Register</Button>
+          </Form>
+        </Formik>
+      </div>
+    </AuthWrapper>
+  );
+};
 
 export default withRouter(Signup);

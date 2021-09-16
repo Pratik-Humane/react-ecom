@@ -1,6 +1,6 @@
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/auth';
-import 'firebase/compat/firestore';
+import firebase from "firebase/compat/app";
+import "firebase/compat/auth";
+import "firebase/compat/firestore";
 import { firebaseConfig } from "./config";
 
 firebase.initializeApp(firebaseConfig);
@@ -8,9 +8,8 @@ firebase.initializeApp(firebaseConfig);
 export const auth = firebase.auth();
 export const firestore = firebase.firestore();
 
-const GoogleProvider = new firebase.auth.GoogleAuthProvider();
-GoogleProvider.setCustomParameters({ prompt: 'select_account' });
-export const siginWithGoogle = () => auth.signInWithPopup(GoogleProvider);
+export const GoogleProvider = new firebase.auth.GoogleAuthProvider();
+GoogleProvider.setCustomParameters({ prompt: "select_account" });
 
 export const handleUserProfile = async (userAuth, additionalData) => {
   if (!userAuth) return;
@@ -26,12 +25,12 @@ export const handleUserProfile = async (userAuth, additionalData) => {
         displayName,
         email,
         createdDate: timestamp,
-        ...additionalData
-      })
+        ...additionalData,
+      });
     } catch (error) {
       //console.log(error);
     }
   }
 
   return userRef;
-}
+};

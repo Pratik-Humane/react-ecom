@@ -1,77 +1,72 @@
-import React, { useState } from 'react'
-import AuthWrapper from '../AuthWrapper';
-import { auth } from '../../firebase/util';
-import { withRouter } from "react-router-dom";
-import FormInput from '../forms/FormInput';
-import Button from '../forms/Button';
+import React, { useEffect, useState } from "react";
+import AuthWrapper from "../AuthWrapper";
+import { Redirect, withRouter } from "react-router-dom";
+import FormInput from "../forms/FormInput";
+import Button from "../forms/Button";
+import { Formik, Form } from "formik";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  resetPasswordFormInitialValues,
+  validateResetPasswordForm,
+} from "../../validations/authFormValidation";
+import { resetUserPassword } from "../../redux/User/user.actions";
+import ErrorMessage from "../ErrorMessage";
 
 /**
-* @author
-* @class EmailPassword
-**/
+ * @author
+ * @class EmailPassword
+ **/
 
-const EmailPassword = props => {
-  
-  const [email, setEmail] = useState('');
+const EmailPassword = (props) => {
+  const { currentUser, resetPassError, resetPassSuccess } = useSelector(
+    (state) => state.user
+  );
+  const dispatch = useDispatch();
   const [errors, setErrors] = useState([]);
+  const INITIAL_FORM_STATE = resetPasswordFormInitialValues;
+  const FORM_VALIDATION = validateResetPasswordForm();
 
-  const resetForm = () => {
-    setEmail('');
-    setErrors([]);
+  useEffect(() => {
+    if (resetPassSuccess) {
+      props.history.push("/login");
+    }
+  }, [resetPassSuccess]);
+
+  useEffect(() => {
+    if (Array.isArray(resetPassError) && resetPassError.length > 0) {
+      setErrors(resetPassError);
+    }
+  }, [resetPassError]);
+
+  const confAuthWraper = {
+    headline: "Email Password",
   };
 
-  const handleSubmit = async evt => {
-    evt.preventDefault();
-    if (email === '') {
-      setErrors(['Email is required']);
-      return;
-    }
-    try {
-      const config = {
-        url: 'http://localhost:3000/login'
-      };
-      await auth.sendPasswordResetEmail(email, config)
-        .then(() => {
-          resetForm();
-          this.props.history.push('/login');
-        })
-        .catch(() => {
-          setErrors(['Email not found. Please try again.']);
-        })
-    } catch (error) {
-      //console.log(error);
-    }
+  if (!currentUser && localStorage.getItem("key")) {
+    return <Redirect to="/" />;
   }
 
-    const confAuthWraper = {
-      headline:'Email Password'
-    }
-
-    return(
-      <AuthWrapper {...confAuthWraper}>
-        {errors.length>0 && (
-          <ul className="errorUl">
-            {errors.map((error,index)=>{
-              return (
-                <li key={index}>{error}</li>
-              )
-            })}
-          </ul>
-        )}
-        <div className="formWrap">
-          <form onSubmit={handleSubmit}>
-            <FormInput
-              name="email"
-              type="email"
-              placeholder="Enter Email"
-              value={email}
-              onChange={e=>setEmail(e.target.value)}
-            />
+  return (
+    <AuthWrapper {...confAuthWraper}>
+      <ErrorMessage errors={errors} />
+      <div className="formWrap">
+        <Formik
+          initialValues={{ ...INITIAL_FORM_STATE }}
+          validationSchema={FORM_VALIDATION}
+          onSubmit={(values, { resetForm }) => {
+            const { email } = values;
+            dispatch(resetUserPassword({ email }));
+            resetForm();
+          }}
+        >
+          <Form>
+            <FormInput name="email" type="email" placeholder="Enter Email" />
             <Button type="submit">Email Password</Button>
-          </form>
-        </div>
-      </AuthWrapper>
-    )
-  }
+          </Form>
+        </Formik>
+      </div>
+    </AuthWrapper>
+  );
+};
 
-export default withRouter(EmailPassword)
+export default withRouter(EmailPassword);
