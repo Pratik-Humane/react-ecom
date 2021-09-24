@@ -1,15 +1,15 @@
-import React from 'react';
+import React from "react";
 import { Link } from "react-router-dom";
-import './style.scss';
-import Logo from '../../assets/logo.png'
-import { auth } from '../../firebase/util';
-import { useSelector } from 'react-redux';
+import "./style.scss";
+import Logo from "../../assets/logo.png";
+import { useDispatch, useSelector } from "react-redux";
+import { signOutUserStart } from "../../redux/User/user.actions";
 
 function Header(props) {
-  const { currentUser } = useSelector(state => state.user);
-  const handleSignOut = () => {
-    localStorage.clear();
-    auth.signOut();
+  const { currentUser } = useSelector((state) => state.user);
+  const dispatch = useDispatch();
+  const handleSignout = () => {
+    dispatch(signOutUserStart());
   };
   return (
     <header className="header">
@@ -25,8 +25,8 @@ function Header(props) {
               <li>
                 <Link to="/dashboard">My Account</Link>
               </li>
-              <li style={{cursor:'pointer',textTransform:'uppercase'}}>
-                <span onClick={handleSignOut}>LogOut</span>
+              <li style={{ cursor: "pointer", textTransform: "uppercase" }}>
+                <span onClick={handleSignout}>LogOut</span>
               </li>
             </ul>
           )}
@@ -40,15 +40,14 @@ function Header(props) {
               </li>
             </ul>
           )}
-          
         </div>
       </div>
     </header>
-  )
+  );
 }
 
 Header.defaultProps = {
-  currentUser: null
+  currentUser: null,
 };
 
 export default Header;

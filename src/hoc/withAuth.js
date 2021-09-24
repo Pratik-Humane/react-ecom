@@ -1,6 +1,7 @@
 import { useAuth } from "./../customHooks";
-import { withRouter } from 'react-router-dom';
+import { Redirect, withRouter } from "react-router-dom";
 
-const WithAuth = props => useAuth(props) && props.children;
+const WithAuth = (props) =>
+  useAuth(props) ? props.children : <Redirect to="/" />;
 
 export default withRouter(WithAuth);

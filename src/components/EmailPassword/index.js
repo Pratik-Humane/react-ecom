@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AuthWrapper from "../AuthWrapper";
-import { Redirect, withRouter } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import FormInput from "../forms/FormInput";
 import Button from "../forms/Button";
 import { Formik, Form } from "formik";
@@ -9,7 +9,10 @@ import {
   resetPasswordFormInitialValues,
   validateResetPasswordForm,
 } from "../../validations/authFormValidation";
-import { resetUserPassword } from "../../redux/User/user.actions";
+import {
+  resetPasswordStart,
+  resetUserState,
+} from "../../redux/User/user.actions";
 import ErrorMessage from "../ErrorMessage";
 
 /**
@@ -18,9 +21,10 @@ import ErrorMessage from "../ErrorMessage";
  **/
 
 const EmailPassword = (props) => {
-  const { currentUser, resetPassError, resetPassSuccess } = useSelector(
+  const { currentUser, userError, resetPassSuccess } = useSelector(
     (state) => state.user
   );
+  const history = useHistory();
   const dispatch = useDispatch();
   const [errors, setErrors] = useState([]);
   const INITIAL_FORM_STATE = resetPasswordFormInitialValues;
@@ -28,21 +32,22 @@ const EmailPassword = (props) => {
 
   useEffect(() => {
     if (resetPassSuccess) {
-      props.history.push("/login");
+      dispatch(resetUserState());
+      history.push("/login");
     }
   }, [resetPassSuccess]);
 
   useEffect(() => {
-    if (Array.isArray(resetPassError) && resetPassError.length > 0) {
-      setErrors(resetPassError);
+    if (Array.isArray(userError) && userError.length > 0) {
+      setErrors(userError);
     }
-  }, [resetPassError]);
+  }, [userError]);
 
   const confAuthWraper = {
     headline: "Email Password",
   };
 
-  if (!currentUser && localStorage.getItem("key")) {
+  if (currentUser) {
     return <Redirect to="/" />;
   }
 
@@ -55,7 +60,7 @@ const EmailPassword = (props) => {
           validationSchema={FORM_VALIDATION}
           onSubmit={(values, { resetForm }) => {
             const { email } = values;
-            dispatch(resetUserPassword({ email }));
+            dispatch(resetPasswordStart({ email }));
             resetForm();
           }}
         >
@@ -69,4 +74,4 @@ const EmailPassword = (props) => {
   );
 };
 
-export default withRouter(EmailPassword);
+export default EmailPassword;

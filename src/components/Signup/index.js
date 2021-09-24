@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import FormInput from "../forms/FormInput";
 import Button from "../forms/Button";
-import { Redirect, withRouter } from "react-router-dom";
+import { Redirect, useHistory } from "react-router-dom";
 import "./style.scss";
 import AuthWrapper from "../AuthWrapper";
 import { useSelector } from "react-redux";
-import { resetAllAuthForms, signUpUser } from "../../redux/User/user.actions";
+import { signUpUserStart } from "../../redux/User/user.actions";
 import { useDispatch } from "react-redux";
 import { Formik, Form } from "formik";
 import ErrorMessage from "../ErrorMessage";
@@ -20,28 +20,26 @@ import {
 
 const Signup = (props) => {
   const dispatch = useDispatch();
-  const { currentUser, signUpSuccess, signUpError } = useSelector(
-    (state) => state.user
-  );
+  const history = useHistory();
+  const { currentUser, userError } = useSelector((state) => state.user);
   const [errors, setErrors] = useState([]);
 
   const INITIAL_FORM_STATE = signUpInitialValues;
   const FORM_VALIDATION = validateSignUpForm();
 
   useEffect(() => {
-    if (signUpSuccess) {
-      dispatch(resetAllAuthForms());
-      props.history.push("/");
+    if (currentUser) {
+      history.push("/");
     }
-  }, [signUpSuccess]);
+  }, [currentUser]);
 
   useEffect(() => {
-    if (Array.isArray(signUpError) && signUpError.length > 0) {
-      setErrors(signUpError);
+    if (Array.isArray(userError) && userError.length > 0) {
+      setErrors(userError);
     }
-  }, [signUpError]);
+  }, [userError]);
 
-  if (localStorage.getItem("key") && !currentUser) {
+  if (currentUser) {
     return <Redirect to="/" />;
   }
   return (
@@ -54,7 +52,7 @@ const Signup = (props) => {
           onSubmit={(values, { resetForm }) => {
             const { displayName, email, password, confirmPassword } = values;
             dispatch(
-              signUpUser({ displayName, email, password, confirmPassword })
+              signUpUserStart({ displayName, email, password, confirmPassword })
             );
             resetForm();
           }}
@@ -76,4 +74,4 @@ const Signup = (props) => {
   );
 };
 
-export default withRouter(Signup);
+export default Signup;

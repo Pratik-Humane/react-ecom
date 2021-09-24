@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Route, Switch } from "react-router-dom";
 import "./default.scss";
-import { auth, handleUserProfile } from "./firebase/util";
 import HomePageLayout from "./Layout/HomePageLayout";
 import MainLayout from "./Layout/MainLayout";
 import HomePage from "./pages/HomePage";
@@ -10,32 +9,13 @@ import Recovery from "./pages/Recovery";
 import Registration from "./pages/Registration";
 import Dashboard from "./pages/Dashboard";
 import WithAuth from "./hoc/withAuth";
-import { setCurrentUser } from "./redux/User/user.actions";
+import { checkUserSession } from "./redux/User/user.actions";
 import { useDispatch } from "react-redux";
 
 const App = (props) => {
   const dispatch = useDispatch();
   useEffect(() => {
-    const authListner = auth.onAuthStateChanged(async (userAuth) => {
-      if (userAuth) {
-        const useRef = await handleUserProfile(userAuth);
-        useRef.onSnapshot((snapshot) => {
-          localStorage.setItem("key", snapshot.id);
-          dispatch(
-            setCurrentUser({
-              id: snapshot.id,
-              ...snapshot.data,
-            })
-          );
-        });
-      }
-      dispatch(setCurrentUser(userAuth));
-    });
-
-    return () => {
-      localStorage.removeItem("key");
-      authListner();
-    };
+    dispatch(checkUserSession());
   }, []);
 
   return (

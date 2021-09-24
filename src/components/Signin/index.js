@@ -3,12 +3,11 @@ import Button from "../forms/Button";
 import FormInput from "../forms/FormInput";
 import AuthWrapper from "../../components/AuthWrapper";
 import "./style.scss";
-import { Link, Redirect, withRouter } from "react-router-dom";
+import { Link, Redirect, useHistory } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  resetAllAuthForms,
-  siginWithGoogle,
-  signInUser,
+  emailSignInStart,
+  googleSignInStart,
 } from "../../redux/User/user.actions";
 import { Formik, Form } from "formik";
 import ErrorMessage from "../ErrorMessage";
@@ -22,32 +21,30 @@ import {
  **/
 
 const Signin = (props) => {
-  const { signInSuccess, currentUser, signInError } = useSelector(
-    (state) => state.user
-  );
+  const { currentUser, userError } = useSelector((state) => state.user);
   const dispatch = useDispatch();
+  const history = useHistory();
   const [errors, setErrors] = useState([]);
   const INITIAL_FORM_STATE = signInInitialValues;
   const FORM_VALIDATION = validateSignInForm();
 
   useEffect(() => {
-    if (signInSuccess) {
-      dispatch(resetAllAuthForms());
-      props.history.push("/");
+    if (currentUser) {
+      history.push("/");
     }
-  }, [signInSuccess]);
+  }, [currentUser]);
 
   useEffect(() => {
-    if (Array.isArray(signInError) && signInError.length > 0) {
-      setErrors(signInError);
+    if (Array.isArray(userError) && userError.length > 0) {
+      setErrors(userError);
     }
-  }, [signInError]);
+  }, [userError]);
 
   const handleGoogleSignIn = () => {
-    dispatch(siginWithGoogle());
+    dispatch(googleSignInStart());
   };
 
-  if (localStorage.getItem("key") && !currentUser) {
+  if (currentUser) {
     return <Redirect to="/" />;
   }
   return (
@@ -59,7 +56,7 @@ const Signin = (props) => {
           validationSchema={FORM_VALIDATION}
           onSubmit={(values, { resetForm }) => {
             const { email, password } = values;
-            dispatch(signInUser({ email, password }));
+            dispatch(emailSignInStart({ email, password }));
             resetForm();
           }}
         >
@@ -84,4 +81,4 @@ const Signin = (props) => {
   );
 };
 
-export default withRouter(Signin);
+export default Signin;
